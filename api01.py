@@ -27,5 +27,5 @@ def get_one(id):
     var_json = json.dumps(items[id], indent=2)
     print(var_json)
     
-# get_all()
+get_all()
 get_one(0)
