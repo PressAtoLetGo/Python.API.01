@@ -23,8 +23,8 @@ def get_all():
     return json.dumps(items, indent=2)
 
 def get_one(id):
-    return json.dumps(items[id], indent=2)
-    
+    var_json = json.dumps(items[id], indent=2)
+    return var_json
     
 print(get_all())
-print(get_one(1))
+print(get_one(0))
