@@ -4,3 +4,7 @@
 ## Requisitos
 
 - Python 3.10^
+
+## Opcionais
+
+- [DB Browser (SQLite)](https://sqlitebrowser.org/)
