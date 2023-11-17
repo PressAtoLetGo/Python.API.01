@@ -4,6 +4,7 @@
 ## Requisitos
 
 - Python 3.10^
+- Flask 3.0.0
 
 ## Opcionais
 
