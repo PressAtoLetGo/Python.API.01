@@ -2,7 +2,7 @@
 
 # Importa bibliotecas.
 from flask import Flask, jsonify, request, abort, make_response, json, Response
-
+import sqlite3
 
 # Cria aplicativo Flask.
 app = Flask(__name__)
@@ -21,7 +21,25 @@ database = "./temp_db.db"
 
 @app.route("/items", methods=["GET"])
 def get_all():
-    return {"olá": "mundo"}
+    try:
+        conn = sqlite3.connect(database)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        sql = "SELECT * FROM owner WHERE owner_status != 'off'"
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        conn.close()
+        res = []
+        for res_temp in data:
+            res.append(dict(res_temp))
+        if res:
+            return res
+        else:
+            return {"error": "Nenhum item encontrado"}
+    except sqlite3.Error as error:
+        return {"error": f"Erro ao acessar o banco de dados: {str(error)}"}
+    except Exception as error:
+        return {"error": f"Erro inesperado: {str(error)}"}
 
 
 # Roda aplicativo Flask.
