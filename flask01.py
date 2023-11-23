@@ -146,35 +146,43 @@ def create():
         new_item = request.get_json()
 
         # Conecta ao banco de dados.
-        # Observe que 'row_factory' é desnecessário porque não receberemos dados do banco de dados.
         conn = sqlite3.connect(database)
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
+        
+        cursor.execute(f"SELECT item_name FROM item WHERE item_name = {new_item['name']} AND item_status != 'off'")
+        
+        item_row = cursor.fetchone()
+        
+        if item_row:
+            conn.close()
+            return {"error": "Registro já existe"}, 200
+        
+        else:
+            # Query que insere um novo registro na tabela 'item'.
+            sql = "INSERT INTO item (item_name, item_description, item_location, item_owner) VALUES (?, ?, ?, ?)"
 
-        # Query que insere um novo registro na tabela 'item'.
-        sql = "INSERT INTO item (item_name, item_description, item_location, item_owner) VALUES (?, ?, ?, ?)"
+            # Dados a serem inseridos, obtidos do request.
+            sql_data = (
+                new_item['name'],
+                new_item['description'],
+                new_item['location'],
+                new_item['owner']
+            )
+            # Executa a query, fazendo as devidas substituições dos curingas (?) pelos dados (sql_data).
+            cursor.execute(sql, sql_data)
 
-        # Dados a serem inseridos, obtidos do request.
-        sql_data = (
-            new_item['name'],
-            new_item['description'],
-            new_item['location'],
-            new_item['owner']
-        )
+            # Obter o ID da última inserção
+            inserted_id = int(cursor.lastrowid)
 
-        # Executa a query, fazendo as devidas substituições dos curingas (?) pelos dados (sql_data).
-        cursor.execute(sql, sql_data)
+            # Salvar as alterações no banco de dados.
+            conn.commit()
 
-        # Obter o ID da última inserção
-        inserted_id = int(cursor.lastrowid)
+            # Fecha a conexão com o banco de dados.
+            conn.close()
 
-        # Salvar as alterações no banco de dados.
-        conn.commit()
-
-        # Fecha a conexão com o banco de dados.
-        conn.close()
-
-        # Retorna com mensagem de sucesso e status HTTP "201 Created".
-        return {"success": "Registro criado com sucesso", "id": inserted_id}, 201
+            # Retorna com mensagem de sucesso e status HTTP "201 Created".
+            return {"success": "Registro criado com sucesso", "id": inserted_id}, 201
 
     except json.JSONDecodeError as e:  # Erro ao obter dados do JSON.
         return {"error": f"Erro ao decodificar JSON: {str(e)}"}, 500
@@ -199,21 +207,32 @@ def edit(id):
     try:
         item_json = request.get_json()
         conn = sqlite3.connect(database)
-        conn.row_factory: sqlite3.Row
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
+        
+        # Query que pesquisa a existência do registro.
+        cursor.execute(
+            "SELECT item_id FROM item WHERE item_id = ? AND item_status != 'off'", (id,))
 
-        # Loop para atualizar os campos específicos do registro na tabela 'item'.
-        # Observe que o prefixo 'item_' é adicionado ao(s) nome(s) do(s) campo(s).
-        set_clause = ', '.join([f"item_{key} = ?" for key in item_json.keys()])
+        # Retorna o resultado da consulta para 'item_row'.
+        item_row = cursor.fetchone()
+        
+        if item_row:         
+            # Loop para atualizar os campos específicos do registro na tabela 'item'.
+            # Observe que o prefixo 'item_' é adicionado ao(s) nome(s) do(s) campo(s).
+            set_clause = ', '.join([f"item_{key} = ?" for key in item_json.keys()])
 
-        # Monta SQL com base nos campos a serem atualizados.
-        sql = f"UPDATE item SET {set_clause} WHERE item_id = ? AND item_status = 'on'"
-        cursor.execute(sql, (*item_json.values(), id))
-        conn.commit()
-        conn.close()
-
-        # Confirma a atualização
-        return {"success": "Registro atualizado com sucesso", "id": id}, 201
+            # Monta SQL com base nos campos a serem atualizados.
+            sql = f"UPDATE item SET {set_clause} WHERE item_id = ? AND item_status = 'on'"
+            cursor.execute(sql, (*item_json.values(), id))
+            conn.commit()
+            conn.close()
+            # Confirma a atualização
+            return {"success": "Registro atualizado com sucesso", "id": id}, 201
+        
+        else:
+            conn.close()
+            return {"error": "Registro não existe"}, 404
 
     except json.JSONDecodeError as e:  # Erro ao obter dados do JSON.
         return {"error": f"Erro ao decodificar JSON: {str(e)}"}, 500
