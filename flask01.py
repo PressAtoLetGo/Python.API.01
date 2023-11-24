@@ -134,7 +134,6 @@ def get_one(id):
 
 @app.route("/items", methods=["POST"])
 def create():
-
     # Cadastra um novo registro em 'item'.
     # Request method → POST
     # Request endpoint → /items
@@ -149,15 +148,17 @@ def create():
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
-        cursor.execute(f"SELECT item_name FROM item WHERE item_name = {new_item['name']} AND item_status != 'off'")
-        
+
+        # Use parameterized query to avoid SQL injection
+        cursor.execute(
+            "SELECT item_name FROM item WHERE item_name = ? AND item_status != 'off'", (new_item['name'],))
+
         item_row = cursor.fetchone()
-        
+
         if item_row:
             conn.close()
             return {"error": "Registro já existe"}, 200
-        
+
         else:
             # Query que insere um novo registro na tabela 'item'.
             sql = "INSERT INTO item (item_name, item_description, item_location, item_owner) VALUES (?, ?, ?, ?)"
@@ -209,18 +210,19 @@ def edit(id):
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
+
         # Query que pesquisa a existência do registro.
         cursor.execute(
             "SELECT item_id FROM item WHERE item_id = ? AND item_status != 'off'", (id,))
 
         # Retorna o resultado da consulta para 'item_row'.
         item_row = cursor.fetchone()
-        
-        if item_row:         
+
+        if item_row:
             # Loop para atualizar os campos específicos do registro na tabela 'item'.
             # Observe que o prefixo 'item_' é adicionado ao(s) nome(s) do(s) campo(s).
-            set_clause = ', '.join([f"item_{key} = ?" for key in item_json.keys()])
+            set_clause = ', '.join(
+                [f"item_{key} = ?" for key in item_json.keys()])
 
             # Monta SQL com base nos campos a serem atualizados.
             sql = f"UPDATE item SET {set_clause} WHERE item_id = ? AND item_status = 'on'"
@@ -229,7 +231,7 @@ def edit(id):
             conn.close()
             # Confirma a atualização
             return {"success": "Registro atualizado com sucesso", "id": id}, 201
-        
+
         else:
             conn.close()
             return {"error": "Registro não existe"}, 404
@@ -283,6 +285,39 @@ def delete(id):
         return {"error": f"Erro ao acessar o banco de dados: {str(e)}"}, 500
 
     except Exception as error:  # Outros erros.
+        return {"error": f"Erro inesperado: {str(error)}"}, 500
+
+
+@app.route("/owner_by_item/<int:id>", methods=["GET"])
+def get_items(id):
+    try:
+        conn = sqlite3.connect(database)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT item.*, owner.*
+            FROM item
+            INNER JOIN owner ON item_owner = owner_id
+            WHERE item_status != 'off' AND owner_status != 'off' AND item_id = ?
+            """, (id,))
+        items_row = cursor.fetchall()
+        conn.close()
+        items = []
+
+        for item in items_row:
+            items.append(dict(item))
+
+        if items:
+            return items, 200
+
+        else:
+            return {"error": "Item ou usuário não encontrado"}, 404
+
+    except sqlite3.Error as e:
+        return {"error": f"Erro ao acessar o banco de dados: {str(e)}"}, 500
+
+    except Exception as error:
         return {"error": f"Erro inesperado: {str(error)}"}, 500
 
 
