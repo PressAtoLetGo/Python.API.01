@@ -32,7 +32,7 @@ def get_all():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT * FROM owner WHERE owner_status != 'off' ORDER BY owner_date DESC")
+            "SELECT * FROM owner WHERE owner_status != 'off' ORDER BY owner_name")
         owners_rows = cursor.fetchall()
         conn.close()
         owners = []
