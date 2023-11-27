@@ -189,7 +189,7 @@ def get_items(id):
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT * FROM item WHERE item_status != 'off' AND item_owner = ?", (id,))
+            "SELECT * FROM item WHERE item_status != 'off' AND item_owner = ? ORDER BY item_date DESC", (id,))
         items_rows = cursor.fetchall()
         conn.close()
         items = []
