@@ -300,6 +300,7 @@ def get_items(id):
             FROM item
             INNER JOIN owner ON item_owner = owner_id
             WHERE item_status != 'off' AND owner_status != 'off' AND item_id = ?
+            ORDER BY item_date DESC
             """, (id,)
         )
         items_row = cursor.fetchall()
@@ -310,7 +311,8 @@ def get_items(id):
             items.append(dict(item))
 
         if items:
-            return items, 200
+            new_items = [prefix_remove('item_', item) for item in items]
+            return new_items, 200
 
         else:
             return {"error": "Item ou usuário não encontrado"}, 404
@@ -323,7 +325,7 @@ def get_items(id):
 
 
 @app.route("/items/search/<string:search>", methods=["GET"])
-def search_items(search):
+def search_items(query):
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
@@ -335,7 +337,7 @@ def search_items(search):
             item_name LIKE '%' || ? || '%' OR
             item_description LIKE '%' || ? || '%' OR
             item_location LIKE '%' || ? || '%')
-            """, (search, search, search,)
+            """, (query, query, query,)
         )
         items_row = cursor.fetchall()
         conn.close()
