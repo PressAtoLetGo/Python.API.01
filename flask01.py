@@ -300,7 +300,8 @@ def get_items(id):
             FROM item
             INNER JOIN owner ON item_owner = owner_id
             WHERE item_status != 'off' AND owner_status != 'off' AND item_id = ?
-            """, (id,))
+            """, (id,)
+        )
         items_row = cursor.fetchall()
         conn.close()
         items = []
@@ -313,6 +314,42 @@ def get_items(id):
 
         else:
             return {"error": "Item ou usuário não encontrado"}, 404
+
+    except sqlite3.Error as e:
+        return {"error": f"Erro ao acessar o banco de dados: {str(e)}"}, 500
+
+    except Exception as error:
+        return {"error": f"Erro inesperado: {str(error)}"}, 500
+
+
+@app.route("/items/search/<string:search>", methods=["GET"])
+def search_items(search):
+    try:
+        conn = sqlite3.connect(database)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT * FROM item
+            WHERE item_status != 'off' AND (
+            item_name LIKE '%' || ? || '%' OR
+            item_description LIKE '%' || ? || '%' OR
+            item_location LIKE '%' || ? || '%')
+            """, (search, search, search,)
+        )
+        items_row = cursor.fetchall()
+        conn.close()
+        items = []
+
+        for item in items_row:
+            items.append(dict(item))
+
+        if items:
+            new_items = [prefix_remove('item_', item) for item in items]
+            return new_items, 200
+
+        else:
+            return {"error": "Item não encontrado"}, 404
 
     except sqlite3.Error as e:
         return {"error": f"Erro ao acessar o banco de dados: {str(e)}"}, 500
