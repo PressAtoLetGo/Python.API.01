@@ -296,8 +296,7 @@ def get_items(id):
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT item.*, owner.*
-            FROM item
+            SELECT * FROM item
             INNER JOIN owner ON item_owner = owner_id
             WHERE item_status != 'off' AND owner_status != 'off' AND item_id = ?
             ORDER BY item_date DESC
