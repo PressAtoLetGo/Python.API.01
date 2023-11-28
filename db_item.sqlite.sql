@@ -1,30 +1,31 @@
 -- Apaga as tabelas caso existam.
+-- CUIDADO! Isso destroi todos os dados do banco.
 DROP TABLE IF EXISTS item;
 DROP TABLE IF EXISTS owner;
+DROP TABLE IF EXISTS contact;
 
 -- Cria a tabela 'owner'.
 CREATE TABLE owner (
-    owner_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    owner_name TEXT,
-    owner_email TEXT,
-    owner_password TEXT,
-    owner_birth DATE,
-    owner_status TEXT DEFAULT 'on',
-    owner_field1 TEXT,
-    owner_field2 TEXT
+	owner_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	owner_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+	owner_name TEXT,
+	owner_email TEXT,
+	owner_password TEXT,
+	owner_birth DATE,
+	owner_status TEXT DEFAULT 'on',
+	owner_field1 TEXT,
+	owner_field2 TEXT
 );
 
--- Popular a tabela 'owner' com dados 'fake'.
-INSERT INTO owner 
-	(owner_date, owner_name, owner_email, owner_password, owner_birth)
-VALUES
-	('2023-09-28 10:11:12', 'Joca da Silva', 'joca@silva.com', '123', '1988-12-14'),
-    ('2022-05-18 09:23:45', 'John Doe', 'john.doe@email.com', 'pass123', '1990-05-21'),
-    ('2019-08-27 14:56:32', 'Jane Smith', 'jane.smith@email.com', 'pass456', '1985-08-17'),
-    ('2014-03-15 18:42:21', 'Bob Johnson', 'bob.johnson@email.com', 'pass789', '1992-03-09'),
-    ('2023-11-02 22:11:33', 'Alice Brown', 'alice.brown@email.com', 'passabc', '1988-11-30'),
-    ('2017-07-09 07:34:52', 'Charlie Wilson', 'charlie.wilson@email.com', 'passxyz', '1995-07-04');
+-- Popula 'owner' com dados 'fake' aleatórios para testes.
+INSERT INTO owner (owner_name, owner_email, owner_password, owner_birth, owner_date)
+VALUES 
+	('João Silva', 'joao@example.com', 'senha321', '1987-08-15', '2023-01-15 10:30:00'),
+	('Maria Oliveira', 'maria@example.com', 'senha654', '1992-03-25', '2023-02-01 14:45:00'),
+	('Carlos Santos', 'carlos@example.com', 'senha987', '1980-11-05', '2023-02-10 08:00:00'),
+	('Luferat', 'luferat@example.com', 'senha123', '1990-01-01', '2023-03-18 12:13:14'),
+	('Ana Souza', 'ana@example.com', 'senha456', '1985-05-20', '2023-03-21 18:19:00'),
+	('Pedro Lima', 'pedro@example.com', 'senha789', '1988-12-10', '2023-04-10 21:31:41');
 
 -- Cria a tabela 'item'.
 CREATE TABLE item (
@@ -40,13 +41,22 @@ CREATE TABLE item (
 	FOREIGN KEY (item_owner) REFERENCES owner (owner_id)
 );
 
--- Popular a tabela 'item' com dados 'fake'.
-INSERT INTO item 
-	(item_date, item_name, item_description, item_location, item_owner)
+-- Popula 'item' com dados 'fake' aleatórios para testes.
+INSERT INTO item (item_date, item_name, item_description, item_location, item_owner)
 VALUES
-    ('2022-05-18 09:23:45', 'Item1', 'Description for Item1', 'Location1', 1),
-    ('2019-08-27 14:56:32', 'Item2', 'Description for Item2', 'Location2', 2),
-    ('2021-03-15 18:42:21', 'Item3', 'Description for Item3', 'Location3', 3),
-    ('2021-11-02 22:11:33', 'Item4', 'Description for Item4', 'Location4', 4),
-    ('2020-07-09 07:34:52', 'Item5', 'Description for Item5', 'Location5', 5),
-    ('2023-02-24 13:17:04', 'Item6', 'Description for Item6', 'Location6', 6);
+	('2023-05-12 14:15:00', 'Produto1', 'Descrição do Produto 1', 'Localização 1', 1),
+	('2023-06-21 23:24:25', 'Produto2', 'Descrição do Produto 2', 'Localização 2', 2),
+	('2023-10-01 08:09:00', 'Produto3', 'Descrição do Produto 3', 'Localização 3', 3),
+	('2023-11-11 11:11:00', 'Produto4', 'Descrição do Produto 4', 'Localização 4', 6);
+
+
+-- Cria a tabela 'contact'.
+CREATE TABLE contact (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	date DATETIME DEFAULT CURRENT_TIMESTAMP,
+	name TEXT,
+	email TEXT,
+	subject TEXT,
+	message TEXT,
+	status TEXT DEFAULT 'received'
+);
