@@ -290,6 +290,13 @@ def item_delete(id):
 
 @app.route("/items/all/<int:id>", methods=["GET"])
 def item_get_owners(id):
+    
+    # Obtém todos os registros válidos de 'item' identificado pelo 'id',
+    # juntamente com os dados de 'owner' correspondente.
+    # Request method → GET
+    # Request endpoint → /items/all/<id>
+    # Response → JSON
+    
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
@@ -325,6 +332,13 @@ def item_get_owners(id):
 
 @app.route("/items/search/<string:query>", methods=["GET"])
 def item_search(query):
+    
+    # Pesquisa todos os registros válidos de 'item' que conténha 'query' nos campos
+    # 'item_name', 'item_description' ou 'item_location'.
+    # Request method → GET
+    # Request endpoint → /items/search/<string:query>
+    # Response → JSON
+    
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
@@ -518,6 +532,13 @@ def owner_delete(id):
 
 @app.route("/owners/items/<int:id>", methods=["GET"])
 def owner_get_items(id):
+    
+    # Obtém todos os registros válidos de 'item' para um 'owner' específico,
+    # identificado pelo 'id'.
+    # Request method → GET
+    # Request endpoint → /owners/items/<id>
+    # Response → JSON
+    
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
