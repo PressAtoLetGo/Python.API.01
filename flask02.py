@@ -26,7 +26,7 @@ def prefix_remove(prefix, data):
 
 
 @app.route("/owners", methods=["GET"])
-def get_all():
+def owner_get_all():
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
@@ -55,7 +55,7 @@ def get_all():
 
 
 @app.route("/owners/<int:id>", methods=["GET"])
-def get_one(id):
+def owner_get_one(id):
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
@@ -81,7 +81,7 @@ def get_one(id):
 
 
 @app.route("/owners", methods=["POST"])
-def create():
+def owner_create():
     try:
         new_owner = request.get_json()
         conn = sqlite3.connect(database)
@@ -120,7 +120,7 @@ def create():
 
 
 @app.route("/owners/<int:id>", methods=["PUT", "PATCH"])
-def edit(id):
+def owner_edit(id):
     try:
         owner_json = request.get_json()
         conn = sqlite3.connect(database)
@@ -155,7 +155,7 @@ def edit(id):
 
 
 @app.route("/owners/<int:id>", methods=["DELETE"])
-def delete(id):
+def owner_delete(id):
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
@@ -183,7 +183,7 @@ def delete(id):
 
 
 @app.route("/items_by_owner/<int:id>", methods=["GET"])
-def get_items(id):
+def owner_get_items(id):
     try:
         conn = sqlite3.connect(database)
         conn.row_factory = sqlite3.Row
